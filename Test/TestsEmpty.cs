@@ -197,9 +197,9 @@ public class TreeTests
         tree.Add(31, 22);
         tree.Add(15, 6);
 
-        Stream ms = new MemoryStream(); // new FileStream("dict.bin", FileMode.OpenOrCreate);
+        Stream stream = new MemoryStream(); // new FileStream("dict.bin", FileMode.OpenOrCreate);
 
-        BinSearchTreeSerialization<Tree> treeSerialization = new BinSearchTreeSerialization<Tree>(ms);
+        BinSearchTreeSerialization<Tree> treeSerialization = new BinSearchTreeSerialization<Tree>(stream);
         treeSerialization.Serialize(tree);
 
         Tree treeDeserialize = treeSerialization.Deserialize();

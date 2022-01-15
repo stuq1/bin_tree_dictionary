@@ -14,6 +14,11 @@ namespace Test
             this.stream = stream;
         }
 
+        public BinSearchTreeSerialization(string fileName)
+        {
+            this.stream = new FileStream(fileName, FileMode.OpenOrCreate);
+        }
+
         public void Serialize(Dict dictionary)
         {
             BinaryFormatter formatter = new BinaryFormatter();
