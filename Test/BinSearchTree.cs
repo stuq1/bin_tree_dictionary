@@ -93,6 +93,9 @@ class BinSearchTreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         {
             get
             {
+                if (this.pos == -1)
+                    return new KeyValuePair<TKey, TValue>(default, default);
+
                 TreeNode node = this.treeNodes[this.pos];
                 return new KeyValuePair<TKey, TValue>(node.Key, node.Value);
             }
@@ -243,6 +246,11 @@ class BinSearchTreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
             node.Parent = current.Parent;
             node.Left = current.Left;
             node.Right = current.Right;
+
+            if (node.Left != null)
+                node.Left.Parent = node;
+            if (node.Right != null)
+                node.Right.Parent = node;
 
             if (current == this.Root)
             {
@@ -488,21 +496,22 @@ class BinSearchTreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         }
     }
 
-    public void Serialize(String filename)
+    public String Serialize()
     {
         BinaryFormatter formatter = new BinaryFormatter();
-        using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate))
+        using (MemoryStream ms = new MemoryStream())
         {
-            formatter.Serialize(fs, this);
+            formatter.Serialize(ms, this);
+            return Convert.ToBase64String(ms.ToArray());
         }
     }
 
-    static public BinSearchTreeDictionary<TKey, TValue> Deserialize(String filename)
+    static public BinSearchTreeDictionary<TKey, TValue> Deserialize(String data)
     {
         BinaryFormatter formatter = new BinaryFormatter();
-        using (FileStream fs = new FileStream(filename, FileMode.OpenOrCreate))
+        using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(data)))
         {
-            BinSearchTreeDictionary<TKey, TValue> tree = (BinSearchTreeDictionary<TKey, TValue>)formatter.Deserialize(fs);
+            BinSearchTreeDictionary<TKey, TValue> tree = (BinSearchTreeDictionary<TKey, TValue>)formatter.Deserialize(ms);
             return tree;
         }
     }

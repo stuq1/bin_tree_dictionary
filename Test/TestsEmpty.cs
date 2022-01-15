@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Tree = BinSearchTreeDictionary<int, int>;
 using TreePair = System.Collections.Generic.KeyValuePair<int, int>;
 
-public class TestsEmpty
+public class TreeTests
 {
 
     [SetUp]
@@ -102,7 +102,6 @@ public class TestsEmpty
         Assert.IsFalse(tree.Remove(1));
     }
 
-    [Test]
     [Description("Удаление случайных элементов")]
     public void TestDeleteRandom()
     {
@@ -140,6 +139,7 @@ public class TestsEmpty
         }
     }
 
+    [Test]
     [Description("Удаление нескольких последовательных элементов")]
     // Вытекал из теста выше и является нормализованным вариантом одного из его прогонов, который выдавал ошибку
     public void TestDeleteSet()
@@ -172,7 +172,7 @@ public class TestsEmpty
             keys.Add(key);
         }
 
-        Assert.Warn("Count: " + tree.Count().ToString());
+        //Assert.Warn("Count: " + tree.Count().ToString());
         while (keys.Count > 0)
         {
             int key = keys[0];
@@ -180,9 +180,9 @@ public class TestsEmpty
             keys.Remove(key);
 
             Assert.IsTrue(tree.ContainsKey(key));
-            Assert.Warn("Key: " + key);
+            //Assert.Warn("Key: " + key);
             Assert.IsTrue(tree.Remove(key));
-            Assert.Warn("Count: " + tree.Count().ToString());
+            //Assert.Warn("Count: " + tree.Count().ToString());
             Assert.IsFalse(tree.ContainsKey(key));
         }
     }
@@ -193,10 +193,10 @@ public class TestsEmpty
         Tree tree = new Tree();
         tree.Add(1, 2);
 
-        tree.Serialize("test.bin");
+        Tree treeDeserialize = Tree.Deserialize(tree.Serialize());
 
-        Tree tree2 = Tree.Deserialize("test.bin");
-        Assert.IsTrue(tree.ContainsKey(1));
+        Assert.IsTrue(treeDeserialize.Count() == 1);
+        Assert.IsTrue(treeDeserialize.Contains(new TreePair(1, 2)));
     }
 
     [Test]
@@ -207,7 +207,6 @@ public class TestsEmpty
         Assert.IsFalse(tree.Remove(new TreePair(1, 1)));
         Assert.IsTrue(tree.Remove(new TreePair(1, 2)));
     }
-
 
     [Test]
     public void TestClear()
@@ -225,14 +224,27 @@ public class TestsEmpty
     {
         Tree tree = new Tree();
 
-        Random rnd = new Random();
-        int count = rnd.Next(10) + 10;
-
         HashSet<int> keysSet = new HashSet<int>();
-        for (int i = 0; i < count; i++)
-        {
-            keysSet.Add(rnd.Next(100) + 1);
-        }
+        keysSet.Add(6);
+        keysSet.Add(8);
+        keysSet.Add(1);
+        keysSet.Add(20);
+        keysSet.Add(18);
+        keysSet.Add(11);
+        keysSet.Add(9);
+        keysSet.Add(4);
+        keysSet.Add(10);
+        keysSet.Add(17);
+        keysSet.Add(5);
+        keysSet.Add(19);
+        keysSet.Add(14);
+        keysSet.Add(12);
+        keysSet.Add(3);
+        keysSet.Add(7);
+        keysSet.Add(15);
+        keysSet.Add(13);
+        keysSet.Add(2);
+        keysSet.Add(16);
 
         foreach (int key in keysSet)
         {
@@ -245,6 +257,37 @@ public class TestsEmpty
             Assert.IsTrue(prevkey < pair.Key);
             Assert.IsTrue(keysSet.Remove(pair.Key));
             Assert.IsTrue(pair.Key*10 == pair.Value);
+            prevkey = pair.Key;
+        }
+
+        Assert.IsTrue(keysSet.Count == 0);
+    }
+
+    // Тест проверяет что все значения, записанные в словарь, могут быть получены через иттератор и в них ничего лишнего не будет
+    public void TestForeachRandom()
+    {
+        Tree tree = new Tree();
+
+        Random rnd = new Random();
+        int count = rnd.Next(10) + 10;
+
+        HashSet<int> keysSet = new HashSet<int>();
+        for (int i = 0; i < count; i++)
+        {
+            keysSet.Add(rnd.Next(100) + 1);
+        }
+
+        foreach (int key in keysSet)
+        {
+            tree.Add(key, key * 10);
+        }
+
+        int prevkey = 0;
+        foreach (TreePair pair in tree)
+        {
+            Assert.IsTrue(prevkey < pair.Key);
+            Assert.IsTrue(keysSet.Remove(pair.Key));
+            Assert.IsTrue(pair.Key * 10 == pair.Value);
             prevkey = pair.Key;
         }
 
@@ -277,6 +320,39 @@ public class TestsEmpty
         Assert.IsTrue(val == default);
         Assert.IsTrue(tree.TryGetValue(1, out val));
         Assert.IsTrue(val == 2);
+    }
+
+    [Test]
+    public void TestInitCurrent()
+    {
+        var dict2 = new BinSearchTreeDictionary<int, int>();
+        var current = dict2.GetEnumerator().Current;
+        Assert.IsTrue(current.Key == default && current.Value == default);
+        dict2.Add(1, 0);
+        current = dict2.GetEnumerator().Current;
+        Assert.IsTrue(current.Key == default && current.Value == default);
+    }
+
+    [Test]
+    public void TestAddDublicateKey()
+    {
+        Tree tree = new Tree();
+        tree.Add(0, 0);
+        tree.Add(-2, -20);
+        tree.Add(-3, -30);
+        tree.Add(-1, -10);
+
+        Assert.IsTrue(tree.Count() == 4);
+
+        Assert.IsTrue(tree.Contains(new TreePair(0, 0)));
+        Assert.IsFalse(tree.Contains(new TreePair(0, 5)));
+        tree.Add(0, 5);
+        Assert.IsFalse(tree.Contains(new TreePair(0, 0)));
+        Assert.IsTrue(tree.Contains(new TreePair(0, 5)));
+
+        Assert.IsTrue(tree.ContainsKey(-2));
+        tree.Remove(-2);
+        Assert.IsFalse(tree.ContainsKey(-2));
     }
 
 }
