@@ -496,24 +496,4 @@ class BinSearchTreeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         }
     }
 
-    public String Serialize()
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
-        using (MemoryStream ms = new MemoryStream())
-        {
-            formatter.Serialize(ms, this);
-            return Convert.ToBase64String(ms.ToArray());
-        }
-    }
-
-    static public BinSearchTreeDictionary<TKey, TValue> Deserialize(String data)
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
-        using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(data)))
-        {
-            BinSearchTreeDictionary<TKey, TValue> tree = (BinSearchTreeDictionary<TKey, TValue>)formatter.Deserialize(ms);
-            return tree;
-        }
-    }
-
 }

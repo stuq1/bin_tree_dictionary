@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Test;
 using Tree = BinSearchTreeDictionary<int, int>;
 using TreePair = System.Collections.Generic.KeyValuePair<int, int>;
 
@@ -192,11 +194,19 @@ public class TreeTests
     {
         Tree tree = new Tree();
         tree.Add(1, 2);
+        tree.Add(31, 22);
+        tree.Add(15, 6);
 
-        Tree treeDeserialize = Tree.Deserialize(tree.Serialize());
+        Stream ms = new MemoryStream(); // new FileStream("dict.bin", FileMode.OpenOrCreate);
 
-        Assert.IsTrue(treeDeserialize.Count() == 1);
-        Assert.IsTrue(treeDeserialize.Contains(new TreePair(1, 2)));
+        BinSearchTreeSerialization<Tree> treeSerialization = new BinSearchTreeSerialization<Tree>(ms);
+        treeSerialization.Serialize(tree);
+
+        Tree treeDeserialize = treeSerialization.Deserialize();
+
+        Assert.IsTrue(treeDeserialize.Count() == tree.Count());
+        CollectionAssert.AreEqual(treeDeserialize.Keys, tree.Keys);
+        CollectionAssert.AreEqual(treeDeserialize.Values, tree.Values);
     }
 
     [Test]
