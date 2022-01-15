@@ -17,6 +17,7 @@ namespace Test
         public void Serialize(Dict dictionary)
         {
             BinaryFormatter formatter = new BinaryFormatter();
+            stream.Position = 0;
             formatter.Serialize(stream, dictionary);
         }
 
